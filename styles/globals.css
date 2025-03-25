@@ -333,6 +333,7 @@ body {
   padding: 20px;
   border-radius: 12px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+
 }
 
 /* 师培筑基模块：图片样式 */
@@ -363,11 +364,11 @@ body {
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
+
+
+
 /* 响应式样式 */
 @media (max-width: 768px) {
-  .container {
-    padding: 0 10px; /* 减少小屏幕上的左右内边距 */
-  }
   .header {
     height: auto;
   }
@@ -407,17 +408,10 @@ body {
   }
   .experience-section {
     padding: 20px;
-    width: 100%; /* 占满父容器宽度 */
   }
   .video-gallery {
     flex-direction: column; /* 小屏幕上垂直排列 */
     align-items: center;
-    max-width: 100%; /* 覆盖 max-width 限制 */
-    width: 100%; /* 占满父容器宽度 */
-  }
-  .video-section {
-    max-width: 100%; /* 覆盖 max-width 限制 */
-    width: 100%; /* 占满父容器宽度 */
   }
   .video-left,
   .video-right {
@@ -430,8 +424,6 @@ body {
     max-width: 300px; /* 小屏幕上与左侧视频同宽 */
   }
   .game-section {
-    max-width: 100%; /* 覆盖 max-width 限制 */
-    width: 100%; /* 占满父容器宽度 */
     padding: 15px;
   }
   .resource-row {
