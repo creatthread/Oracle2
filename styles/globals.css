@@ -318,6 +318,13 @@ body {
   width: 100%; /* 确保占满父容器宽度 */
 }
 
+/* 确保 iframe 和游戏内容占满宽度 */
+.game-section iframe {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 5 / 3; /* 保持宽高比 */
+}
+
 /* 师培筑基模块：资源行（左右布局） */
 .resource-left {
   display: flex;
@@ -374,10 +381,11 @@ body {
     padding: 0; /* 移除小屏幕上的左右内边距 */
     max-width: 100%; /* 覆盖 max-width 限制 */
     margin: 0; /* 移除居中 margin */
+    width: 100vw; /* 强制占满视口宽度 */
   }
   .header {
     height: auto;
-    width: 100%; /* 确保导航栏占满宽度 */
+    width: 100vw; /* 确保导航栏占满宽度 */
   }
   .nav-buttons {
     flex-wrap: wrap;
@@ -418,7 +426,7 @@ body {
   }
   .experience-section {
     padding: 20px;
-    width: 100%; /* 占满父容器宽度 */
+    width: 100vw; /* 强制占满视口宽度 */
     box-sizing: border-box; /* 确保 padding 不影响宽度 */
     margin: 20px 0; /* 调整外边距，增加间距 */
   }
@@ -450,6 +458,10 @@ body {
     width: 100%; /* 占满父容器宽度 */
     padding: 15px;
     margin: 0; /* 移除居中 margin */
+  }
+  .game-section iframe {
+    width: 100%; /* 确保 iframe 占满宽度 */
+    height: 300px; /* 调整高度以适应小屏幕 */
   }
   .resource-row {
     flex-direction: column; /* 小屏幕上垂直排列 */
