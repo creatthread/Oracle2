@@ -219,6 +219,8 @@ body {
   background-color: #f9f5e7; /* 浅米色背景，与 photo-gallery 一致 */
   border-radius: 12px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  width: 100%; /* 确保占满父容器宽度 */
+  box-sizing: border-box; /* 确保 padding 不影响宽度 */
 }
 
 /* 沉浸体验模块：部分标题 */
@@ -249,18 +251,7 @@ body {
 .video-section {
   max-width: 800px; /* 限制单个视频的最大宽度 */
   margin: 0 auto;
-}
-
-.experience-video {
-  width: 100%;
-  border-radius: 10px;
-  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.experience-video:hover {
-  transform: scale(1.02);
-  box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.3);
+  width: 100%; /* 确保占满父容器宽度 */
 }
 
 /* 沉浸体验模块：视频画廊（多个视频） */
@@ -270,6 +261,7 @@ body {
   gap: 20px;
   max-width: 800px;
   margin: 0 auto;
+  width: 100%; /* 确保占满父容器宽度 */
 }
 
 /* 左侧视频容器 */
@@ -311,6 +303,7 @@ body {
   background-color: #fff; /* 白色背景，突出游戏内容 */
   border-radius: 10px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  width: 100%; /* 确保占满父容器宽度 */
 }
 
 /* 师培筑基模块：资源行（左右布局） */
@@ -333,7 +326,6 @@ body {
   padding: 20px;
   border-radius: 12px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-
 }
 
 /* 师培筑基模块：图片样式 */
@@ -364,11 +356,12 @@ body {
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
 }
 
-
-
-
 /* 响应式样式 */
 @media (max-width: 768px) {
+  .container {
+    padding: 0 10px; /* 减少小屏幕上的左右内边距 */
+    max-width: 100%; /* 覆盖 max-width 限制 */
+  }
   .header {
     height: auto;
   }
@@ -408,22 +401,32 @@ body {
   }
   .experience-section {
     padding: 20px;
+    width: 100%; /* 占满父容器宽度 */
+    box-sizing: border-box; /* 确保 padding 不影响宽度 */
   }
   .video-gallery {
     flex-direction: column; /* 小屏幕上垂直排列 */
     align-items: center;
+    max-width: 100%; /* 覆盖 max-width 限制 */
+    width: 100%; /* 占满父容器宽度 */
+  }
+  .video-section {
+    max-width: 100%; /* 覆盖 max-width 限制 */
+    width: 100%; /* 占满父容器宽度 */
   }
   .video-left,
   .video-right {
     width: 100%; /* 小屏幕上占满宽度 */
   }
   .gallery-video {
-    max-width: 300px; /* 小屏幕上缩小视频 */
+    max-width: 100%; /* 小屏幕上占满宽度 */
   }
   .large-video {
-    max-width: 300px; /* 小屏幕上与左侧视频同宽 */
+    max-width: 100%; /* 小屏幕上占满宽度 */
   }
   .game-section {
+    max-width: 100%; /* 覆盖 max-width 限制 */
+    width: 100%; /* 占满父容器宽度 */
     padding: 15px;
   }
   .resource-row {
