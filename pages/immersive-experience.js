@@ -50,7 +50,7 @@ export default function ImmersiveExperience() {
       <div className="experience-section">
         <h2 className="section-title">甲骨文密室逃脱</h2>
         <div className="video-section">
-          <video width="100%" controls className="experience-video">
+          <video controls className="experience-video">
             <source src="/videos/escape-room.mp4" type="video/mp4" />
             您的浏览器不支持 HTML5 视频。
           </video>
@@ -61,7 +61,7 @@ export default function ImmersiveExperience() {
       <div className="experience-section">
         <h2 className="section-title">甲骨文讲师</h2>
         <div className="video-section">
-          <video width="100%" controls className="experience-video">
+          <video controls className="experience-video">
             <source src="/videos/lecturer.mp4" type="video/mp4" />
             您的浏览器不支持 HTML5 视频。
           </video>
