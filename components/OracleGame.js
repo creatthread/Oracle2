@@ -27,7 +27,6 @@ export default function OracleGame() {
     const question = oracleData[Math.floor(Math.random() * oracleData.length)];
     setCurrentQuestion(question);
 
-    // 生成选项
     const allOptions = [question.modernChar];
     while (allOptions.length < 4) {
       const randomChar = oracleData[Math.floor(Math.random() * oracleData.length)].modernChar;
@@ -50,7 +49,7 @@ export default function OracleGame() {
   if (!currentQuestion) return <div>加载中...</div>;
 
   return (
-    <div style={{ textAlign: "center", padding: "20px" }}>
+    <div style={{ textAlign: "center", padding: "20px", width: "100%" }}>
       <h1>甲骨文挑战</h1>
       <div style={{
         width: "150px",
@@ -68,7 +67,7 @@ export default function OracleGame() {
         display: "grid",
         gridTemplateColumns: "repeat(2, 1fr)",
         gap: "10px",
-        maxWidth: "400px",
+        width: "100%", /* 移除 maxWidth 限制 */
         margin: "20px auto"
       }}>
         {options.map((char, index) => (
@@ -80,7 +79,8 @@ export default function OracleGame() {
               backgroundColor: "#f0f0f0",
               border: "2px solid #ccc",
               borderRadius: "5px",
-              transition: "all 0.3s"
+              transition: "all 0.3s",
+              width: "100%" /* 确保按钮占满网格单元 */
             }}
             onClick={() => checkAnswer(char)}>
             {char}
