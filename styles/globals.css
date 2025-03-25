@@ -254,6 +254,18 @@ body {
   width: 100%; /* 确保占满父容器宽度 */
 }
 
+.experience-video {
+  width: 100%;
+  border-radius: 10px;
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.experience-video:hover {
+  transform: scale(1.02);
+  box-shadow: 4px 4px 15px rgba(0, 0, 0, 0.3);
+}
+
 /* 沉浸体验模块：视频画廊（多个视频） */
 .video-gallery {
   display: flex;
@@ -359,15 +371,19 @@ body {
 /* 响应式样式 */
 @media (max-width: 768px) {
   .container {
-    padding: 0 10px; /* 减少小屏幕上的左右内边距 */
+    padding: 0; /* 移除小屏幕上的左右内边距 */
     max-width: 100%; /* 覆盖 max-width 限制 */
+    margin: 0; /* 移除居中 margin */
   }
   .header {
     height: auto;
+    width: 100%; /* 确保导航栏占满宽度 */
   }
   .nav-buttons {
     flex-wrap: wrap;
     gap: 10px;
+    width: 100%; /* 确保导航按钮占满宽度 */
+    justify-content: center;
   }
   .nav-link {
     padding: 6px 12px;
@@ -384,6 +400,7 @@ body {
   }
   .page-title {
     font-size: 2rem;
+    width: 100%; /* 确保标题占满宽度 */
   }
   .section-title {
     font-size: 1.5rem;
@@ -403,16 +420,19 @@ body {
     padding: 20px;
     width: 100%; /* 占满父容器宽度 */
     box-sizing: border-box; /* 确保 padding 不影响宽度 */
+    margin: 20px 0; /* 调整外边距，增加间距 */
   }
   .video-gallery {
     flex-direction: column; /* 小屏幕上垂直排列 */
     align-items: center;
     max-width: 100%; /* 覆盖 max-width 限制 */
     width: 100%; /* 占满父容器宽度 */
+    gap: 30px; /* 增加视频间距 */
   }
   .video-section {
     max-width: 100%; /* 覆盖 max-width 限制 */
     width: 100%; /* 占满父容器宽度 */
+    margin: 0; /* 移除居中 margin */
   }
   .video-left,
   .video-right {
@@ -420,6 +440,7 @@ body {
   }
   .gallery-video {
     max-width: 100%; /* 小屏幕上占满宽度 */
+    margin-bottom: 20px; /* 增加视频之间的间距 */
   }
   .large-video {
     max-width: 100%; /* 小屏幕上占满宽度 */
@@ -428,6 +449,7 @@ body {
     max-width: 100%; /* 覆盖 max-width 限制 */
     width: 100%; /* 占满父容器宽度 */
     padding: 15px;
+    margin: 0; /* 移除居中 margin */
   }
   .resource-row {
     flex-direction: column; /* 小屏幕上垂直排列 */
