@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>甲骨文双人PK · 小马过河</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: linear-gradient(145deg, #1b7b4e 0%, #0f5a38 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', '华文楷书', 'PingFang SC', 'Microsoft YaHei', cursive;
+            margin: 0;
+            padding: 20px;
+        }
+
+        /* 游戏主面板 */
+        .game-container {
+            max-width: 1300px;
+            width: 100%;
+            background: #eef4c3;
+            background-image: radial-gradient(circle at 20% 40%, rgba(250, 245, 200, 0.6) 2%, #dce6a8 90%);
+            border-radius: 64px;
+            box-shadow: 0 20px 35px rgba(0, 0, 0, 0.4), inset 0 1px 4px rgba(255, 255, 210, 0.9);
+            padding: 20px 25px 30px;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.2rem;
+            margin: 0 0 8px 0;
+            color: #ffefb9;
+            text-shadow: 5px 5px 0 #a5622c;
+            letter-spacing: 4px;
+            background: #3f2a1cbb;
+            display: inline-block;
+            width: auto;
+            padding: 6px 32px;
+            border-radius: 60px;
+            backdrop-filter: blur(3px);
+        }
+
+        .title-row {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        .sub {
+            color: #fff3cf;
+            background: #5a3a24aa;
+            border-radius: 50px;
+            display: inline-block;
+            padding: 4px 24px;
+            font-size: 0.9rem;
+        }
+
+        /* 双人对战主区域 */
+        .race-area {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        /* 左侧玩家1，右侧玩家2 */
+        .player-card {
+            flex: 1;
+            min-width: 260px;
+            background: #fff9ed;
+            border-radius: 55px;
+            padding: 18px 15px 22px;
+            box-shadow: 0 12px 20px rgba(0, 0, 0, 0.2);
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .player-name {
+            font-size: 1.9rem;
+            font-weight: bold;
+            background: #f7e3b2;
+            display: inline-block;
+            padding: 6px 28px;
+            border-radius: 50px;
+            margin-bottom: 12px;
+            color: #4f2d12;
+            box-shadow: inset 0 1px 3px #fff8, 0 4px 8px #0001;
+        }
+
+        .horse-icon {
+            font-size: 3rem;
+            margin: 8px 0;
+            filter: drop-shadow(2px 6px 8px rgba(0,0,0,0.2));
+        }
+
+        /* 赛道小河 */
+        .track {
+            background: #5fa8d3;
+            background: linear-gradient(90deg, #3980b3, #6bb5e0);
+            border-radius: 60px;
+            padding: 12px 15px;
+            margin: 15px 0;
+            box-shadow: inset 0 2px 6px #2a6285, 0 6px 10px rgba(0,0,0,0.15);
+        }
+
+        .track-bar {
+            background: #cbe5b4;
+            border-radius: 40px;
+            height: 48px;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+            box-shadow: inset 0 0 0 2px #fdf8cf, 0 2px 6px black;
+        }
+
+        .progress {
+            width: 0%;
+            height: 100%;
+            background: #f5bc70;
+            background: linear-gradient(90deg, #fdae4a, #ffda88);
+            border-radius: 40px;
+            transition: width 0.25s ease-out;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 12px;
+            font-weight: bold;
+            color: #4a2a0e;
+            font-size: 1rem;
+        }
+
+        .steps-label {
+            font-size: 0.9rem;
+            background: #e7cf9c;
+            display: inline-block;
+            padding: 4px 18px;
+            border-radius: 28px;
+            margin-top: 8px;
+        }
+
+        /* 中间题库 & 竞猜区 */
+        .quiz-arena {
+            background: #f9efdb;
+            border-radius: 55px;
+            padding: 18px 20px;
+            text-align: center;
+            margin: 12px 0;
+            box-shadow: 0 8px 18px rgba(0,0,0,0.2);
+        }
+
+        .question-box {
+            background: #fff5e6;
+            border-radius: 70px;
+            padding: 15px 10px;
+            margin-bottom: 15px;
+        }
+
+        .modern-word-big {
+            font-size: 3rem;
+            font-weight: bold;
+            background: #3e2c1c;
+            display: inline-block;
+            padding: 0.2rem 2rem;
+            border-radius: 90px;
+            color: #ffecb3;
+            letter-spacing: 8px;
+            box-shadow: inset 0 0 0 2px #e7c48b, 0 4px 12px black;
+        }
+
+        .oracle-row {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+
+        .oracle-option {
+            background: #fef3e0;
+            width: 130px;
+            padding: 16px 8px;
+            border-radius: 55px;
+            cursor: pointer;
+            transition: 0.1s linear;
+            border: 3px solid #fad49b;
+            box-shadow: 0 8px 12px rgba(0,0,0,0.15);
+        }
+
+        .oracle-option:hover {
+            transform: scale(1.02);
+            background: #fff5e8;
+            border-color: #e6b064;
+        }
+
+        .oracle-char {
+            font-size: 3rem;
+            font-weight: bold;
+            font-family: 'Noto Sans CJK SC', 'Segoe UI', monospace;
+            color: #6a3a1c;
+        }
+
+        .oracle-label {
+            font-size: 0.8rem;
+            color: #ad7a48;
+        }
+
+        .pk-info {
+            font-weight: bold;
+            background: #d9c394;
+            border-radius: 50px;
+            padding: 8px;
+            margin: 12px 0;
+            font-size: 1.2rem;
+        }
+
+        .action-btn {
+            background: #b45f2b;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            padding: 10px 28px;
+            border-radius: 60px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 5px 0 #6a3518;
+            transition: 0.05s linear;
+            margin: 6px;
+        }
+
+        .action-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #6a3518;
+        }
+
+        .reset-game {
+            background: #7c5e3c;
+        }
+
+        .winner-msg {
+            font-size: 1.5rem;
+            font-weight: bold;
+            background: gold;
+            display: inline-block;
+            padding: 8px 24px;
+            border-radius: 50px;
+            margin-top: 12px;
+            color: #a04117;
+        }
+
+        footer {
+            text-align: center;
+            font-size: 0.7rem;
+            color: #69562e;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 850px) {
+            .oracle-option { width: 95px; }
+            .oracle-char { font-size: 2.2rem; }
+            .modern-word-big { font-size: 2rem; letter-spacing: 4px; }
+            .player-name { font-size: 1.3rem; }
+        }
+
+        button {
+            background: none;
+            border: none;
+        }
+
+        .disabled-click {
+            pointer-events: none;
+            opacity: 0.6;
+        }
+    </style>
+</head>
+<body>
+<div class="game-container">
+    <div class="title-row">
+        <h1>🐎 甲骨文·小马过河 🐎</h1>
+        <div class="sub">双人PK · 识甲骨 赛骏马 | 先到对岸者为胜</div>
+    </div>
+
+    <div class="race-area">
+        <!-- 左: 红方玩家1 -->
+        <div class="player-card" id="player1Card">
+            <div class="player-name" style="background:#f9cfb5;">🐎 小红马 · 左骑手</div>
+            <div class="horse-icon">🐴💨</div>
+            <div class="track">
+                <div class="track-bar">
+                    <div class="progress" id="p1Progress" style="width: 0%; background: linear-gradient(90deg,#e68a2e,#ffbc6e);">0步</div>
+                </div>
+            </div>
+            <div class="steps-label">🏁 距离终点: <span id="p1StepsLeft">10</span> 格</div>
+            <div class="score-badge">✅ 连对积分: <span id="p1Streak">0</span></div>
+        </div>
+
+        <!-- 右: 蓝方玩家2 -->
+        <div class="player-card" id="player2Card">
+            <div class="player-name" style="background:#bdd9f0;">🦄 蓝小马 · 右骑手</div>
+            <div class="horse-icon">🦄💨</div>
+            <div class="track">
+                <div class="track-bar">
+                    <div class="progress" id="p2Progress" style="width: 0%; background: linear-gradient(90deg,#3f86c5,#71b6f0);">0步</div>
+                </div>
+            </div>
+            <div class="steps-label">🏁 距离终点: <span id="p2StepsLeft">10</span> 格</div>
+            <div class="score-badge">✅ 连对积分: <span id="p2Streak">0</span></div>
+        </div>
+    </div>
+
+    <!-- 竞猜区（共享题目，抢答模式） -->
+    <div class="quiz-arena" id="quizZone">
+        <div class="question-box">
+            <div style="font-size: 1rem;">📜 哪个甲骨文字对应现代汉字？</div>
+            <div class="modern-word-big" id="currentModernWord">马</div>
+        </div>
+        <div class="oracle-row" id="oracleOptions">
+            <!-- 动态三个选项 -->
+        </div>
+        <div class="pk-info" id="pkMessage">✨ 点击正确的甲骨文，你的小马向前奔跑 ✨</div>
+        <div>
+            <button class="action-btn" id="nextRoundBtn">下一题 ➕ 刷新抢答</button>
+            <button class="action-btn reset-game" id="resetGameBtn">🔄 重置赛马</button>
+        </div>
+        <div id="winnerDisplay" style="margin-top: 10px;"></div>
+    </div>
+    <footer>🐎 双人PK规则：两人轮流抢答？不！两人都可以随时点正确甲骨文，答对者前进1格，答错则对方前进1格！连续答对会触发额外冲刺！</footer>
+</div>
+
+<script>
+    (function() {
+        // ----------------------------- 甲骨文题库 ---------------------------------
+        // 每道题: 现代汉字, 正确甲骨文字符, 两个干扰项
+        const questionsBank = [
+            { modern: "马", correct: "🐎", distractor1: "🐄", distractor2: "🐪", oracleDisplay: "𠥼" },   // 为了趣味真实感，展示甲骨文风格字，使用马字近似
+            { modern: "牛", correct: "🐂", distractor1: "🐏", distractor2: "🐖", oracleDisplay: "𤘩" },
+            { modern: "羊", correct: "🐑", distractor1: "🐐", distractor2: "🦌", oracleDisplay: "𦍋" },
+            { modern: "水", correct: "💧", distractor1: "🔥", distractor2: "🌊", oracleDisplay: "𣸕" },
+            { modern: "火", correct: "🔥", distractor1: "💧", distractor2: "🌪️", oracleDisplay: "𡗾" },
+            { modern: "山", correct: "⛰️", distractor1: "🗻", distractor2: "🏔️", oracleDisplay: "𡿨" },
+            { modern: "日", correct: "☀️", distractor1: "🌙", distractor2: "⭐", oracleDisplay: "𡆠" },
+            { modern: "月", correct: "🌙", distractor1: "☀️", distractor2: "✨", oracleDisplay: "𠥱" },
+            { modern: "田", correct: "🌾", distractor1: "🏞️", distractor2: "🌽", oracleDisplay: "𤲞" },
+            { modern: "云", correct: "☁️", distractor1: "🌫️", distractor2: "🌀", oracleDisplay: "𦩒" }
+        ];
+        
+        // 赛道总长度（格子数）
+        const TOTAL_STEPS = 10;
+        // 玩家状态
+        let player1Pos = 0;      // 0 = 起点，10 = 终点
+        let player2Pos = 0;
+        let player1Streak = 0;    // 连对计数（用于奖励）
+        let player2Streak = 0;
+        let gameActive = true;     // 游戏是否结束（有人获胜后禁止抢答）
+        let winner = null;          // "p1" or "p2"
+        
+        let currentQuestionIndex = 0;   // 当前题目索引
+        let currentOptions = [];         // [{char, isCorrect, oracleText}]
+        let canAnswer = true;            // 当前题目是否可被抢答（避免重复点同一题多次生效）
+        let waitingNext = false;          // 等待下一题加载
+        
+        // DOM 元素
+        const modernWordSpan = document.getElementById('currentModernWord');
+        const optionsContainer = document.getElementById('oracleOptions');
+        const pkMessageDiv = document.getElementById('pkMessage');
+        const nextBtn = document.getElementById('nextRoundBtn');
+        const resetBtn = document.getElementById('resetGameBtn');
+        const winnerDisplay = document.getElementById('winnerDisplay');
+        
+        // 进度条及文字
+        const p1ProgressDiv = document.getElementById('p1Progress');
+        const p2ProgressDiv = document.getElementById('p2Progress');
+        const p1StepsLeftSpan = document.getElementById('p1StepsLeft');
+        const p2StepsLeftSpan = document.getElementById('p2StepsLeft');
+        const p1StreakSpan = document.getElementById('p1Streak');
+        const p2StreakSpan = document.getElementById('p2Streak');
+        
+        // 辅助函数: 更新UI显示位置、步数、连对
+        function updateRaceUI() {
+            // 更新进度条宽度
+            let p1Percent = (player1Pos / TOTAL_STEPS) * 100;
+            let p2Percent = (player2Pos / TOTAL_STEPS) * 100;
+            p1ProgressDiv.style.width = `${p1Percent}%`;
+            p2ProgressDiv.style.width = `${p2Percent}%`;
+            p1ProgressDiv.innerText = player1Pos === 0 ? "起步" : `${player1Pos}步`;
+            p2ProgressDiv.innerText = player2Pos === 0 ? "起步" : `${player2Pos}步`;
+            let p1Left = TOTAL_STEPS - player1Pos;
+            let p2Left = TOTAL_STEPS - player2Pos;
+            p1StepsLeftSpan.innerText = p1Left < 0 ? 0 : p1Left;
+            p2StepsLeftSpan.innerText = p2Left < 0 ? 0 : p2Left;
+            p1StreakSpan.innerText = player1Streak;
+            p2StreakSpan.innerText = player2Streak;
+            
+            // 边界安全
+            if(player1Pos >= TOTAL_STEPS && gameActive && winner !== "p1") {
+                gameActive = false;
+                winner = "p1";
+                pkMessageDiv.innerHTML = "🏆 小红马率先冲过终点！胜利属于左骑手！🏆";
+                winnerDisplay.innerHTML = '<div class="winner-msg">🎉 小红马胜利！ 甲骨文小英雄！ 🎉</div>';
+                disableAnswer(true);
+            } else if(player2Pos >= TOTAL_STEPS && gameActive && winner !== "p2") {
+                gameActive = false;
+                winner = "p2";
+                pkMessageDiv.innerHTML = "🏆 蓝小马飞跃终点！右骑手赢得比赛！🏆";
+                winnerDisplay.innerHTML = '<div class="winner-msg">🎉 蓝小马胜利！ 甲骨文智多星！ 🎉</div>';
+                disableAnswer(true);
+            }
+            
+            if(!gameActive && winner) {
+                // 已结束，确保不可再答题
+                disableAnswer(true);
+            } else {
+                // 如果游戏进行中且没有等待锁，启用选项区（但按钮及选项启用由canAnswer决定）
+                if(gameActive && canAnswer && !waitingNext) {
+                    enableOptions(true);
+                } else {
+                    enableOptions(false);
+                }
+            }
+        }
+        
+        // 控制选项点击
+        function enableOptions(enable) {
+            const opts = document.querySelectorAll('.oracle-option');
+            opts.forEach(opt => {
+                if(enable) opt.style.pointerEvents = 'auto';
+                else opt.style.pointerEvents = 'none';
+            });
+        }
+        
+        function disableAnswer(disable) {
+            if(disable) {
+                canAnswer = false;
+                enableOptions(false);
+            } else {
+                if(gameActive) canAnswer = true;
+                else canAnswer = false;
+                if(gameActive && !waitingNext) enableOptions(true);
+            }
+        }
+        
+        // 玩家前进逻辑
+        function advancePlayer(player, isCorrect, isBonus = false) {
+            if(!gameActive) return false;
+            let oldPos = (player === 1) ? player1Pos : player2Pos;
+            if(oldPos >= TOTAL_STEPS) return false;
+            let moveGain = 1;
+            // 连对奖励：如果连对计数达到2，额外前进1步，并且重置连对计数或者继续累加? 规则: 每连续答对两次(即当前streak+1后若为2的倍数)多冲一步
+            // 更直观: 基础+1, 若当前连对数量(答对之前连对计数) >=2? 这里设计: 答对后连对增加，如果连对计数≥2时，额外+1步 (让比赛更刺激)
+            // 参数isBonus用于外部调用？根据新streak决定
+            let extra = 0;
+            let streakAfter = (player === 1) ? player1Streak : player2Streak;
+            if(isCorrect && streakAfter >= 2 && (streakAfter % 2 === 0)) { // 每两次连对触发一次冲刺
+                extra = 1;
+                pkMessageDiv.innerHTML = `⚡ 连对x${streakAfter}！ 触发冲刺！额外前进1格 ⚡`;
+            }
+            let totalMove = moveGain + extra;
+            if(player === 1) {
+                player1Pos = Math.min(TOTAL_STEPS, player1Pos + totalMove);
+                if(player1Pos >= TOTAL_STEPS) player1Pos = TOTAL_STEPS;
+            } else {
+                player2Pos = Math.min(TOTAL_STEPS, player2Pos + totalMove);
+                if(player2Pos >= TOTAL_STEPS) player2Pos = TOTAL_STEPS;
+            }
+            updateRaceUI();
+            return true;
+        }
+        
+        // 核心：处理玩家抢答 (玩家点击某个选项)
+        function handleAnswer(selectedPlayer, isCorrect) {
+            if(!gameActive) {
+                pkMessageDiv.innerHTML = "🏁 比赛已结束，请按「重置赛马」开始新对局 🏁";
+                return;
+            }
+            if(!canAnswer) {
+                pkMessageDiv.innerHTML = "⏳ 请等待下一道题目再来抢答吧！";
+                return;
+            }
+            if(winner) return;
+            
+            // 根据正确/错误 执行奖惩
+            if(isCorrect) {
+                // 答对: 当前玩家前进 + 增加连对计数，对方连对清零
+                if(selectedPlayer === 1) {
+                    player1Streak++;
+                    player2Streak = 0;
+                    pkMessageDiv.innerHTML = `✅ 小红马答对了！前进1格！ 连对次数 ${player1Streak}`;
+                    advancePlayer(1, true);
+                } else {
+                    player2Streak++;
+                    player1Streak = 0;
+                    pkMessageDiv.innerHTML = `✅ 蓝小马答对了！前进1格！ 连对次数 ${player2Streak}`;
+                    advancePlayer(2, true);
+                }
+                // 额外检测是否因为冲刺已经更新, advancePlayer内部判断额外冲刺
+                updateRaceUI();
+                // 答对后本题锁定, 不能再重复抢答，需要下一题刷新
+                canAnswer = false;
+                enableOptions(false);
+                pkMessageDiv.innerHTML += `<br>🎯 点击「下一题」继续PK！`;
+            } else {
+                // 答错: 对方前进一格，当前玩家连对归零
+                if(selectedPlayer === 1) {
+                    // 玩家1答错 -> 玩家2前进
+                    player2Streak = 0;
+                    player1Streak = 0;
+                    pkMessageDiv.innerHTML = `❌ 小红马选错了... 蓝小马获得机会前进1格！`;
+                    advancePlayer(2, false);
+                } else {
+                    player1Streak = 0;
+                    player2Streak = 0;
+                    pkMessageDiv.innerHTML = `❌ 蓝小马选错了... 小红马获得机会前进1格！`;
+                    advancePlayer(1, false);
+                }
+                updateRaceUI();
+                // 答错也锁定本题，防止恶意连点
+                canAnswer = false;
+                enableOptions(false);
+                pkMessageDiv.innerHTML += `<br>📖 继续加油，点击下一题再抢答~`;
+            }
+            // 检测胜利在advancePlayer里调用updateRaceUI会触发
+        }
+        
+        // 随机打乱选项
+        function shuffleArray(arr) {
+            for (let i = arr.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [arr[i], arr[j]] = [arr[j], arr[i]];
+            }
+            return arr;
+        }
+        
+        // 加载当前题目 (基于currentQuestionIndex)
+        function loadQuestion() {
+            const qData = questionsBank[currentQuestionIndex % questionsBank.length];
+            modernWordSpan.innerText = qData.modern;
+            // 构建选项: 正确甲骨文 + 两个干扰甲骨文 (使用有趣的字符显示)
+            // 为了让甲骨文有真实感，显示 qData.correct, distractor1, distractor2
+            let opts = [
+                { char: qData.correct, isCorrect: true, display: qData.correct },
+                { char: qData.distractor1, isCorrect: false, display: qData.distractor1 },
+                { char: qData.distractor2, isCorrect: false, display: qData.distractor2 }
+            ];
+            // 随机顺序
+            currentOptions = shuffleArray(opts);
+            renderOptions();
+            // 重置答题锁
+            canAnswer = true;
+            waitingNext = false;
+            if(gameActive && !winner) {
+                enableOptions(true);
+                pkMessageDiv.innerHTML = "🏇 两人抢答！点击正确的甲骨文，让自己小马向前冲！🏇";
+            } else if(winner) {
+                enableOptions(false);
+                pkMessageDiv.innerHTML = `🏁 比赛已结束，胜利者: ${winner === 'p1' ? '小红马' : '蓝小马'}，点击重置可再战。`;
+            } else {
+                enableOptions(true);
+            }
+        }
+        
+        function renderOptions() {
+            optionsContainer.innerHTML = "";
+            for(let opt of currentOptions){
+                const card = document.createElement('div');
+                card.className = 'oracle-option';
+                // 为了区分双人点击，绑定玩家身份需要知道谁点的——根据鼠标点击位置所属阵营？实际上是双人同屏自由点，但是PK两个玩家可以点同一个按钮，为了确定是谁点击，我们需要区分点击者？
+                // 改进: 增加两个独立的“抢答按钮”不符合体验，双人同设备pk一般左右玩家分别点击自己区域或按键，更公平做法: 点击甲骨文后弹出谁抢答？
+                // 为了保证双人各自点击，我们在玩家卡片上增加抢答按键? 但会破坏简洁。重新设计: 每个甲骨文选项上悬浮左/右? 太复杂。
+                // 改进: 添加两个独立按钮：“左骑手抢答”和“右骑手抢答”并显示当前选项? 但失去了识字趣味。
+                // 更优雅：在选项下方为每个玩家独立出抢答按钮？太过繁琐，影响识字感。最好每个甲骨文被点击时让当前活跃玩家选择，不符合双人竞技。
+                // 为保证双人PK公平且简单，设计每个甲骨文选项旁边有左右两个小马头像来让玩家分别选择谁进行竞猜？ 会增加界面复杂度。
+                // 因为要求简答小马过河双人PK，我们可改造为: 展示同一组甲骨文选项，下方设置两个独立按钮：“🐎 左骑手作答此字”和“🦄 右骑手作答此字”。点击时，读取当前选中的甲骨文是哪一个？为了避免混乱，我们最好每个选项独立成行并带有左骑手/右骑手的小按钮？会增加冗余。
+                // 为了更好的双人体验，更符合直觉：每个甲骨文卡片右侧有两个小徽章（左边马头、右边马头）点击代表该玩家选择此甲骨文。
+                // 优化实现：在每个甲骨文选项内添加两个迷你按钮/图标，分别代表红马和蓝马进行抢答。
+                // 重写renderOptions支持双人竞猜。
+            }
+            // 全新设计: 每个选项卡片内部增加两个抢答标志 (左马🐴/右马🦄)
+            for(let idx = 0; idx < currentOptions.length; idx++) {
+                const opt = currentOptions[idx];
+                const card = document.createElement('div');
+                card.className = 'oracle-option';
+                card.style.padding = "12px 8px";
+                card.innerHTML = `
+                    <div class="oracle-char">${opt.char}</div>
+                    <div class="oracle-label">甲骨文</div>
+                    <div style="display: flex; justify-content: center; gap: 16px; margin-top: 10px;">
+                        <span style="cursor:pointer; background:#e68a2e; padding: 4px 10px; border-radius: 40px; color:white; font-weight:bold; font-size:0.8rem;" class="p1-choose">🐎 左骑手</span>
+                        <span style="cursor:pointer; background:#3f86c5; padding: 4px 10px; border-radius: 40px; color:white; font-weight:bold; font-size:0.8rem;" class="p2-choose">🦄 右骑手</span>
+                    </div>
+                `;
+                const p1Btn = card.querySelector('.p1-choose');
+                const p2Btn = card.querySelector('.p2-choose');
+                p1Btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if(!gameActive || !canAnswer || waitingNext) {
+                        pkMessageDiv.innerHTML = "⛔ 当前无法抢答，请刷新题目或比赛已结束";
+                        return;
+                    }
+                    handleAnswer(1, opt.isCorrect);
+                });
+                p2Btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if(!gameActive || !canAnswer || waitingNext) {
+                        pkMessageDiv.innerHTML = "⛔ 当前无法抢答，请刷新题目或比赛已结束";
+                        return;
+                    }
+                    handleAnswer(2, opt.isCorrect);
+                });
+                optionsContainer.appendChild(card);
+            }
+        }
+        
+        // 下一题
+        function nextQuestion() {
+            if(!gameActive && winner) {
+                // 如果游戏已结束，但重置后才能继续; 不过可以允许刷新题目但赛马锁定
+                if(winner) {
+                    pkMessageDiv.innerHTML = "比赛已经结束，请按「重置赛马」开始新对局后再继续答题~";
+                    return;
+                }
+            }
+            if(waitingNext) return;
+            waitingNext = true;
+            canAnswer = false;
+            enableOptions(false);
+            // 更换题目索引
+            currentQuestionIndex = (currentQuestionIndex + 1) % questionsBank.length;
+            loadQuestion();  // 内部重置canAnswer, waitingNext
+            updateRaceUI();
+        }
+        
+        // 重置整场赛马
+        function resetGame() {
+            player1Pos = 0;
+            player2Pos = 0;
+            player1Streak = 0;
+            player2Streak = 0;
+            gameActive = true;
+            winner = null;
+            canAnswer = true;
+            waitingNext = false;
+            winnerDisplay.innerHTML = "";
+            pkMessageDiv.innerHTML = "✨ 比赛重置！小马回到起点！继续甲骨文对决 ✨";
+            // 随机重置题目索引，避免重复
+            currentQuestionIndex = Math.floor(Math.random() * questionsBank.length);
+            loadQuestion();
+            updateRaceUI();
+            enableOptions(true);
+        }
+        
+        // 事件绑定
+        nextBtn.addEventListener('click', nextQuestion);
+        resetBtn.addEventListener('click', resetGame);
+        
+        // 初始化
+        function init() {
+            resetGame();
+        }
+        
+        init();
+    })();
+</script>
+</body>
+</html>

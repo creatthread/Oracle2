@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>甲骨文识字小游戏 | 古今配对挑战</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+        }
+        body {
+            background: linear-gradient(145deg, #f7f3e8 0%, #e8e0d0 100%);
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            padding: 20px;
+        }
+        .game-container {
+            max-width: 1300px;
+            width: 100%;
+            background: #fffef7;
+            border-radius: 72px;
+            box-shadow: 0 25px 45px rgba(0,0,0,0.2);
+            padding: 20px 28px 35px;
+        }
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 2px solid #d9c8a9;
+            padding-bottom: 15px;
+        }
+        h1 {
+            background: linear-gradient(135deg, #7a5c3a, #b48c48);
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+        .score-area {
+            background: #2e241f;
+            padding: 8px 22px;
+            border-radius: 60px;
+            color: #ffecb3;
+            font-weight: bold;
+        }
+        .game-board {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin: 30px 0;
+        }
+        .oracle-section, .hanzi-section {
+            flex: 1;
+            background: #fef5e6;
+            border-radius: 56px;
+            padding: 20px;
+        }
+        .oracle-grid, .hanzi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 18px;
+        }
+        .oracle-card {
+            background: #fff2e2;
+            border-radius: 48px;
+            text-align: center;
+            padding: 22px 12px;
+            cursor: pointer;
+            box-shadow: 0 6px 0 #cbad83;
+        }
+        .oracle-card.selected {
+            background: #ffe1b3;
+            transform: translateY(3px);
+        }
+        .oracle-card.matched {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+        /* 图片样式 */
+        .oracle-img {
+            width: 70px;
+            height: 70px;
+            object-fit: contain;
+        }
+        .oracle-label {
+            margin-top: 8px;
+            font-size: 0.85rem;
+            color: #ad8860;
+            background: #f4e7d9;
+            padding: 4px 12px;
+            border-radius: 40px;
+        }
+        .hanzi-card {
+            background: #f4eadb;
+            border-radius: 48px;
+            text-align: center;
+            padding: 20px 8px;
+            cursor: pointer;
+        }
+        .hanzi-card.matched {
+            opacity: 0.5;
+            pointer-events: none;
+            text-decoration: line-through;
+        }
+        .hanzi-text {
+            font-size: 2rem;
+            color: #3b2a1e;
+        }
+        .game-footer {
+            display: flex;
+            justify-content: space-between;
+        }
+        .message-area {
+            background: #e7dcc8;
+            border-radius: 48px;
+            padding: 10px 20px;
+            color: #634d2e;
+        }
+        .btn-reset {
+            background: #c38e4b;
+            border: none;
+            padding: 12px 32px;
+            border-radius: 60px;
+            color: white;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+<div class="game-container">
+    <div class="game-header">
+        <h1>甲骨文·识字游戏</h1>
+        <div class="score-area">🏆 配对得分: <span id="scoreValue">0</span> / <span id="totalPairs"></span></div>
+    </div>
+
+    <div class="game-board">
+        <div class="oracle-section">
+            <div class="section-title">🐉 甲骨文</div>
+            <div id="oracleGrid" class="oracle-grid"></div>
+        </div>
+
+        <div class="hanzi-section">
+            <div class="section-title">📖 现代汉字</div>
+            <div id="hanziGrid" class="hanzi-grid"></div>
+        </div>
+    </div>
+
+    <div class="game-footer">
+        <div class="message-area" id="gameMessage">点击图片→点击汉字配对</div>
+        <button class="btn-reset" id="resetGameBtn">🔄 重新开局</button>
+    </div>
+</div>
+
+<script>
+    
+    const enhancedPairs = [
+        { oracleImg: "/games/matching/images/象.png", meaning: "象", hint: "长鼻大象" },
+        { oracleImg: "/games/matching/images/谷.png", meaning: "谷", hint: "谷物庄稼" },
+        { oracleImg: "/games/matching/images/鱼.png", meaning: "鱼", hint: "水中游鱼" },
+        { oracleImg: "/games/matching/images/人.png", meaning: "人", hint: "站立的人" },
+        { oracleImg: "/games/matching/images/鸟.png", meaning: "鸟", hint: "飞鸟" },
+        { oracleImg: "/games/matching/images/月.png", meaning: "月", hint: "月亮" },
+        { oracleImg: "/games/matching/images/火.png", meaning: "火", hint: "火焰" },
+        { oracleImg: "/games/matching/images/水.png", meaning: "水", hint: "流水" },
+        { oracleImg: "/games/matching/images/木.png", meaning: "木", hint: "树木" },
+        { oracleImg: "/games/matching/images/山.png", meaning: "山", hint: "高山" }
+    ];
+
+    let currentGameState = {
+        pairs: [], oracleItems: [], hanziItems: [],
+        selectedOracleId: null, score: 0, totalPairs: 0, gameFinished: false
+    };
+
+    function shuffleArray(arr) {
+        for (let i = arr.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [arr[i], arr[j]] = [arr[j], arr[i]];
+        }
+        return arr;
+    }
+
+    function initGame() {
+        const rawPairs = enhancedPairs.map((item, idx) => ({
+            id: idx, oracleImg: item.oracleImg, meaning: item.meaning, matched: false, oracleHint: item.hint
+        }));
+
+        let oracleList = rawPairs.map(p => ({
+            pairId: p.id, oracleImg: p.oracleImg, matched: p.matched, hint: p.oracleHint, cardId: `o_${p.id}`
+        }));
+
+        let hanziList = rawPairs.map(p => ({
+            pairId: p.id, meaning: p.meaning, matched: p.matched, cardId: `h_${p.id}`
+        }));
+
+        oracleList = shuffleArray(oracleList);
+        hanziList = shuffleArray(hanziList);
+
+        currentGameState = {
+            pairs: rawPairs, oracleItems: oracleList, hanziItems: hanziList,
+            selectedOracleId: null, score: 0, totalPairs: rawPairs.length, gameFinished: false
+        };
+
+        syncMatchedStatus();
+        updateScoreUI();
+        renderGameBoard();
+    }
+
+    function syncMatchedStatus() {
+        const m = new Map();
+        currentGameState.pairs.forEach(p => m.set(p.id, p.matched));
+        currentGameState.oracleItems.forEach(i => i.matched = m.get(i.pairId));
+        currentGameState.hanziItems.forEach(i => i.matched = m.get(i.pairId));
+    }
+
+    function markPairAsMatched(id) {
+        const p = currentGameState.pairs.find(x => x.id === id);
+        if (!p || p.matched) return;
+        p.matched = true;
+        currentGameState.score++;
+        updateScoreUI();
+        syncMatchedStatus();
+
+        if (currentGameState.pairs.every(x => x.matched)) {
+            currentGameState.gameFinished = true;
+            updateMessage("🎉 全部配对成功！", true);
+        } else {
+            updateMessage("✅ 配对成功！");
+        }
+        renderGameBoard();
+    }
+
+    function attemptMatch(o, h) {
+        const oi = currentGameState.oracleItems.find(x => x.cardId === o);
+        const hi = currentGameState.hanziItems.find(x => x.cardId === h);
+        if (!oi || !hi || oi.matched || hi.matched) return;
+        if (oi.pairId === hi.pairId) {
+            markPairAsMatched(oi.pairId);
+            currentGameState.selectedOracleId = null;
+        } else {
+            updateMessage("❌ 配对错误");
+            currentGameState.selectedOracleId = null;
+            renderGameBoard();
+        }
+    }
+
+    function onOracleClick(id) {
+        const item = currentGameState.oracleItems.find(x => x.cardId === id);
+        if (!item || item.matched) return;
+        currentGameState.selectedOracleId = currentGameState.selectedOracleId === id ? null : id;
+        renderGameBoard();
+    }
+
+    function onHanziClick(id) {
+        if (!currentGameState.selectedOracleId) return updateMessage("先选甲骨文图片");
+        attemptMatch(currentGameState.selectedOracleId, id);
+    }
+
+    function updateScoreUI() {
+        document.getElementById("scoreValue").innerText = currentGameState.score;
+        document.getElementById("totalPairs").innerText = currentGameState.totalPairs;
+    }
+
+    function updateMessage(msg, win) {
+        const el = document.getElementById("gameMessage");
+        el.innerText = win ? "🎉 游戏胜利！" : msg;
+    }
+
+    // ====================== 渲染图片（已改好） ======================
+    function renderGameBoard() {
+        const o = document.getElementById("oracleGrid");
+        const h = document.getElementById("hanziGrid");
+        o.innerHTML = "";
+        h.innerHTML = "";
+
+        currentGameState.oracleItems.forEach(item => {
+            const card = document.createElement("div");
+            card.className = "oracle-card";
+            if (item.matched) card.classList.add("matched");
+            if (currentGameState.selectedOracleId === item.cardId) card.classList.add("selected");
+
+            // 图片
+            const img = document.createElement("img");
+            img.src = item.oracleImg;
+            img.className = "oracle-img";
+
+            const tip = document.createElement("div");
+            tip.className = "oracle-label";
+            tip.innerText = item.hint;
+
+            card.appendChild(img);
+            card.appendChild(tip);
+            card.onclick = () => onOracleClick(item.cardId);
+            o.appendChild(card);
+        });
+
+        currentGameState.hanziItems.forEach(item => {
+            const card = document.createElement("div");
+            card.className = "hanzi-card";
+            if (item.matched) card.classList.add("matched");
+            const t = document.createElement("div");
+            t.className = "hanzi-text";
+            t.innerText = item.meaning;
+            card.appendChild(t);
+            card.onclick = () => onHanziClick(item.cardId);
+            h.appendChild(card);
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        initGame();
+        document.getElementById("resetGameBtn").onclick = initGame;
+    });
+</script>
+</body>
+</html>

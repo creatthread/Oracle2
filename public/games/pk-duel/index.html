@@ -1,0 +1,269 @@
+v<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>甲骨文双人PK小游戏</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        p1: '#3B82F6',
+                        p2: '#F59E0B',
+                        correct: '#10B981',
+                        wrong: '#EF4444',
+                    },
+                    fontFamily: {
+                        kai: ['KaiTi', 'STKaiti', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer utilities {
+            .card-hover { @apply transition-all duration-300 hover:scale-105 hover:shadow-lg; }
+            .btn-p1 { @apply bg-p1 text-white px-5 py-2 rounded-full shadow hover:shadow-xl; }
+            .btn-p2 { @apply bg-p2 text-white px-5 py-2 rounded-full shadow hover:shadow-xl; }
+            .turn-highlight { @apply ring-4 ring-yellow-400 scale-105; }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-orange-50 min-h-screen font-kai">
+
+<div class="max-w-4xl mx-auto p-4">
+    <div class="text-center mb-6">
+        <h1 class="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-p1 to-p2">
+            甲骨文双人PK赛
+        </h1>
+        <p class="text-gray-600 mt-1">轮流答题，10回合定胜负</p>
+    </div>
+
+    <!-- 玩家面板 -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+        <div id="card1" class="bg-white rounded-2xl p-4 shadow transition-all">
+            <h3 class="text-xl font-bold text-p1">玩家 1 🎮</h3>
+            <div class="mt-2 font-semibold">
+                分数：<span id="s1">0</span>
+            </div>
+        </div>
+        <div id="card2" class="bg-white rounded-2xl p-4 shadow transition-all">
+            <h3 class="text-xl font-bold text-p2">玩家 2 🎮</h3>
+            <div class="mt-2 font-semibold">
+                分数：<span id="s2">0</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 控制区 -->
+    <div class="bg-white/90 backdrop-blur rounded-2xl p-4 flex flex-wrap gap-3 justify-between items-center mb-6">
+        <div class="flex gap-2">
+            <button id="soundBtn" class="bg-gray-100 px-4 py-2 rounded-full">
+                <i class="fa fa-volume-up"></i> 音效开
+            </button>
+            <button id="restartBtn" class="bg-wrong text-white px-4 py-2 rounded-full">
+                重新开始
+            </button>
+        </div>
+        <div class="font-bold text-yellow-500" id="turnTip">当前：玩家1回合</div>
+    </div>
+
+    <!-- 玩法选择 -->
+    <div class="flex justify-center gap-4 mb-6">
+        <button id="modePic" class="btn-p1">看图猜甲骨文</button>
+        <button id="modeChar" class="btn-p2">看字找甲骨文</button>
+    </div>
+
+    <!-- 游戏区 -->
+    <div id="game" class="bg-white rounded-2xl p-6 min-h-[350px] flex flex-col items-center justify-center text-center">
+        <h2 class="text-xl text-gray-500">请选择玩法开始对战</h2>
+    </div>
+
+    <div id="hint" class="mt-4 text-lg font-bold text-center min-h-10"></div>
+</div>
+
+<!-- 音效 -->
+<audio id="sClick" src="https://assets.mixkit.co/sfx/preview/mixkit-select-click-1109.mp3" preload="auto">
+<audio id="sRight" src="https://assets.mixkit.co/sfx/preview/mixkit-achievement-bell-600.mp3" preload="auto">
+<audio id="sWrong" src="https://assets.mixkit.co/sfx/preview/mixkit-wrong-answer-fail-notification-946.mp3" preload="auto">
+<audio id="sWin" src="https://assets.mixkit.co/sfx/preview/mixkit-winning-chimes-2015.mp3" preload="auto">
+
+<script>
+    // 题库
+    const words = [
+        { char:"人", pic:"👤", desc:"像站立的人" },
+        { char:"日", pic:"☀️", desc:"像太阳" },
+        { char:"月", pic:"🌙", desc:"像弯月" },
+        { char:"山", pic:"⛰️", desc:"像山峰" },
+        { char:"水", pic:"💧", desc:"像流水" },
+        { char:"火", pic:"🔥", desc:"像火焰" },
+        { char:"木", pic:"🌳", desc:"像树木" },
+        { char:"口", pic:"👄", desc:"像嘴巴" },
+        { char:"目", pic:"👁️", desc:"像眼睛" },
+        { char:"田", pic:"🌾", desc:"像农田" },
+        { char:"门", pic:"🚪", desc:"像门" },
+        { char:"鱼", pic:"🐟", desc:"像鱼" },
+        { char:"鸟", pic:"🐦", desc:"像鸟" },
+        { char:"牛", pic:"🐮", desc:"像牛头" },
+        { char:"羊", pic:"🐑", desc:"像羊头" }
+    ];
+
+    // 游戏状态
+    let sound = true;
+    let mode = 0; // 1看图 2看字
+    let p1 = 0, p2 = 0;
+    let nowPlayer = 1;
+    let round = 0;
+    const maxRound = 10;
+    let ans = null;
+    let options = [];
+
+    // DOM
+    const card1 = document.getElementById('card1');
+    const card2 = document.getElementById('card2');
+    const s1 = document.getElementById('s1');
+    const s2 = document.getElementById('s2');
+    const turnTip = document.getElementById('turnTip');
+    const game = document.getElementById('game');
+    const hint = document.getElementById('hint');
+    const soundBtn = document.getElementById('soundBtn');
+    const restartBtn = document.getElementById('restartBtn');
+
+    // 音效
+    function play(a) {
+        if (sound) { a.currentTime=0; a.play().catch(()=>{}); }
+    }
+    const sfx = {
+        click: document.getElementById('sClick'),
+        right: document.getElementById('sRight'),
+        wrong: document.getElementById('sWrong'),
+        win:   document.getElementById('sWin')
+    };
+
+    // 切换玩家高亮
+    function updateTurn() {
+        turnTip.textContent = `当前：玩家${nowPlayer}回合`;
+        if (nowPlayer === 1) {
+            card1.classList.add('turn-highlight');
+            card2.classList.remove('turn-highlight');
+        } else {
+            card2.classList.add('turn-highlight');
+            card1.classList.remove('turn-highlight');
+        }
+    }
+
+    // 出题
+    function genQuestion() {
+        round++;
+        if (round > maxRound) { endGame(); return; }
+        updateTurn();
+        hint.textContent = `第 ${round}/${maxRound} 回合`;
+
+        // 正确答案
+        const i = Math.floor(Math.random()*words.length);
+        ans = words[i];
+
+        // 干扰项
+        options = [];
+        while (options.length < 3) {
+            const r = words[Math.floor(Math.random()*words.length)];
+            if (r !== ans && !options.includes(r)) options.push(r);
+        }
+        options.push(ans);
+        options.sort(() => Math.random()-0.5);
+
+        render();
+    }
+
+    // 渲染题目
+    function render() {
+        if (mode === 1) {
+            game.innerHTML = `
+                <h2 class="text-2xl mb-4 text-purple-600">这是什么字？</h2>
+                <div class="text-7xl mb-3">${ans.pic}</div>
+                <p class="text-gray-500 mb-6">${ans.desc}</p>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 w-full max-w-md" id="opts"></div>
+            `;
+        } else {
+            game.innerHTML = `
+                <h2 class="text-2xl mb-4 text-purple-600">请选择甲骨文：</h2>
+                <div class="text-6xl font-bold mb-6">${ans.char}</div>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 w-full max-w-md" id="opts"></div>
+            `;
+        }
+
+        const box = document.getElementById('opts');
+        options.forEach(o => {
+            const btn = document.createElement('button');
+            btn.className = 'card-hover py-3 rounded-xl text-lg font-bold border-2 hover:border-blue-400';
+            btn.innerHTML = mode === 1 ? o.char : `<span class="text-4xl">${o.pic}</span>`;
+            btn.onclick = () => choose(o);
+            box.appendChild(btn);
+        });
+    }
+
+    // 选择答案
+    function choose(o) {
+        play(sfx.click);
+        let isRight = o.char === ans.char;
+        if (isRight) {
+            nowPlayer === 1 ? p1 += 10 : p2 += 10;
+            hint.innerHTML = `<span class="text-correct">✅ 答对！${ans.char} - ${ans.desc}</span>`;
+            play(sfx.right);
+        } else {
+            hint.innerHTML = `<span class="text-wrong">❌ 答错，正确：${ans.char}</span>`;
+            play(sfx.wrong);
+        }
+
+        s1.textContent = p1;
+        s2.textContent = p2;
+        nowPlayer = nowPlayer === 1 ? 2 : 1;
+
+        setTimeout(() => genQuestion(), 1500);
+    }
+
+    // 结束
+    function endGame() {
+        play(sfx.win);
+        let msg;
+        if (p1 > p2) msg = "🎉 玩家1获胜！";
+        else if (p2 > p1) msg = "🎉 玩家2获胜！";
+        else msg = "🤝 平局！";
+        alert(`对战结束！\n玩家1：${p1} 分\n玩家2：${p2} 分\n\n${msg}`);
+        reset();
+    }
+
+    // 重置
+    function reset() {
+        p1 = p2 = 0;
+        round = 0;
+        nowPlayer = 1;
+        s1.textContent = 0;
+        s2.textContent = 0;
+        card1.classList.remove('turn-highlight');
+        card2.classList.remove('turn-highlight');
+        game.innerHTML = `<h2 class="text-xl text-gray-500">请选择玩法开始对战</h2>`;
+        hint.textContent = "";
+    }
+
+    // 开始游戏
+    function start(m) {
+        mode = m;
+        reset();
+        genQuestion();
+    }
+
+    // 按钮
+    document.getElementById('modePic').onclick = () => start(1);
+    document.getElementById('modeChar').onclick = () => start(2);
+    restartBtn.onclick = () => { play(sfx.click); reset(); };
+    soundBtn.onclick = () => {
+        sound = !sound;
+        soundBtn.innerHTML = sound ? '<i class="fa fa-volume-up"></i> 音效开' : '<i class="fa fa-volume-off"></i> 音效关';
+    };
+</script>
+</body>
+</html>
